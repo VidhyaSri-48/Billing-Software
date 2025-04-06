@@ -1,6 +1,5 @@
 import java.util.*;
 
-
 class Customer{
     static int customer_id=0;
     String name;
@@ -13,7 +12,6 @@ class Customer{
         this.mobile = mobile;
     }
     static HashMap<Integer, Customer> custMap = new HashMap<>();
-
 
     static void add_customer(){
         Scanner sc = new Scanner(System.in);
@@ -38,8 +36,6 @@ class Customer{
     }
 
 }
-
-
 class Product{
     int productid;
     String productname;
@@ -74,7 +70,7 @@ class Product{
 
     static void display_product(){
         System.out.println("Product Details");
-        for(Map.Entry<Integer, Product> entry: prodMap.entrySet()){
+        for(Map.Entry<Integer, Product> entry: Product.prodMap.entrySet()){
             int prodID = entry.getKey();
             Product prod = entry.getValue();
             System.out.println("Product ID:" + prodID);
@@ -85,42 +81,77 @@ class Product{
         }
     }  
 }
-
-
 class Sales{
-    int sales_id = 0;
+    static int salescounter = 0;
+    int sales_id;
     Customer customer;
     Product product;
     double total_amt;
     double discount_amount;
 
     Sales(Customer customer, Product product, double total_amt, double discount_amount){
-        this.sales_id +=1;
+        salescounter +=1;
+        this.sales_id = salescounter;
         this.customer = customer;
         this.product = product;
         this.total_amt = total_amt;
         this.discount_amount  = discount_amount; 
     }
-    
-    void make_sale(){
+    static HashMap<Integer, Integer>cartMap = new HashMap<>();
 
+    static void make_sale(){
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter customer id");
+        int customer_id = sc.nextInt();
+
+        while(true){
+            System.out.println("Enter product id");
+            int productid = sc.nextInt();
+            System.out.println("Enter quantity");
+            int quantity = sc.nextInt();
+            
+            Product selectedProduct = Product.prodMap.get(productid);
+            if(quantity==0 ||selectedProduct==null || selectedProduct.quantity< quantity){
+                System.out.println("Invalid quantity");
+            }
+            else{
+                cartMap.put(productid, quantity);
+            }
+
+            System.out.println("Wish to buy more products(yes/no)?");
+            String ans = sc.next();
+            if(ans.equalsIgnoreCase("no")) break;
+            
+        }
+
+        for(Map.Entry<Integer, Integer> entry: cartMap.entrySet()){
+
+            int pid = entry.getKey();
+            int qty = entry.getValue();
+            Product p = Product.prodMap.get(pid);
+            if (p != null) {
+                p.quantity -= qty;
+            }
+                    
+            }
+        Sales sale = new Sales(Customer.custMap.get(customer_id),null, 0, 0 );
+        sale.Amount_calculation();
+        sale.generate_Bill();
     }
-    double Amount_calculation(){
+    void Amount_calculation(){
         double total_amt = 0;
-        for(Map.Entry<Integer, Product> entry: product.prodMap.entrySet()){
+        for(Map.Entry<Integer, Product> entry: Product.prodMap.entrySet()){
             Product prod = entry.getValue();
             if(prod.quantity==0){
                 System.out.println("Stock unavailable");
             }
             else{
-                double amt = prod.quantity * prod.rate;
-                prod.quantity-=quantity;        
+                double amt = prod.quantity * prod.rate;    
                 total_amt += amt;
             }
             
         }
-
-        double dicount_amount = discount_calculation(total_amt);
+        double discount_amount = discount_calculation(total_amt);
         if(discount_amount == 0.0){
             System.out.println("No discount, Buy more to avail discount");
         }
@@ -131,23 +162,23 @@ class Sales{
 
     double discount_calculation(double amount){
         if(amount>=1500){
-            return (15/100)*amount;
+            return (15.0/100.0)*amount;
         }
         else{
             return 0.0;
         }
-
-
     }
     void generate_Bill(){
 
         System.out.println("Invoice Generation");
-        product.display_product();
+        Product.display_product();
         System.out.println("Total Amount: "+ total_amt);   
+        System.out.println("Discount Amount: "+ discount_amount);   
+        System.out.println("You have saved Rs. "+ discount_amount);   
+        
         
     }
 }
-
 public class Main {
     public static void display_options(){
 
@@ -156,11 +187,10 @@ public class Main {
                 2. Add products
                 3. Display products
                 4. Display Customer
-                5. Generate Bill 
+                5. Make sale
+                6. Generate Bill 
                 """);
-    
     }
-
     public static void main(String[] args) {
         System.out.println("SRI'S MART");
         
@@ -181,11 +211,10 @@ public class Main {
             }
             else if(choice==4){
                 Customer.display_customer();
-            }
-            
-    
-        }
-        
+            } 
+            else if(choice==5){
+                Sales.make_sale();
+            } 
+        }        
     }
-
 }
