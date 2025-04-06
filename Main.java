@@ -12,10 +12,10 @@ class Customer{
         this. name = name;
         this.mobile = mobile;
     }
-    HashMap<Integer, Customer> custMap = new HashMap<>();
+    static HashMap<Integer, Customer> custMap = new HashMap<>();
 
 
-    void add_customer(){
+    static void add_customer(){
         Scanner sc = new Scanner(System.in);
         System.out.println("Enter customer name: ");
         String name = sc.next();
@@ -25,7 +25,7 @@ class Customer{
         Customer customer = new Customer(name, mobile);
         custMap.put(customer_id, customer);
     }
-    void display_customer(){
+    static void display_customer(){
         System.out.println("Customer Details");
         for(Map.Entry<Integer, Customer> entry: custMap.entrySet()){
             int custID = entry.getKey();
@@ -52,9 +52,9 @@ class Product{
         this.rate = rate;
         this.quantity = quantity;
     }
-    HashMap<Integer, Product> prodMap = new HashMap<>();
+    static HashMap<Integer, Product> prodMap = new HashMap<>();
 
-    void add_product(){
+    static void add_product(){
         Scanner sc = new Scanner(System.in);
         System.out.println("Enter product id: ");
         int productid = sc.nextInt();
@@ -72,7 +72,7 @@ class Product{
         prodMap.put(productid, product);    // productID, object
     }
 
-    void display_product(){
+    static void display_product(){
         System.out.println("Product Details");
         for(Map.Entry<Integer, Product> entry: prodMap.entrySet()){
             int prodID = entry.getKey();
@@ -102,6 +102,9 @@ class Sales{
         this.discount_amount  = discount_amount; 
     }
     
+    void make_sale(){
+
+    }
     double Amount_calculation(){
         double total_amt = 0;
         for(Map.Entry<Integer, Product> entry: product.prodMap.entrySet()){
@@ -111,7 +114,7 @@ class Sales{
             }
             else{
                 double amt = prod.quantity * prod.rate;
-                prod.quantity-=quantity;        //d
+                prod.quantity-=quantity;        
                 total_amt += amt;
             }
             
@@ -136,55 +139,52 @@ class Sales{
 
 
     }
-    void generate_bill(){
+    void generate_Bill(){
 
         System.out.println("Invoice Generation");
-        product.display_product();   
-        
+        product.display_product();
+        System.out.println("Total Amount: "+ total_amt);   
         
     }
 }
-class Shop{
-    while(true){
-        display_options();
-        System.out.print("Enter your choice: ");
-        int choice = sc.nextInt();
-        if(choice==1){
-            add_customer();
-        }
-        else if(choice==2){
-            add_product();
-        }
-        else if(choice==3){
-            display_product();
-        }
-        else if(choice==4){
-            display_customer();
-        }
-        else if(choice==5){
-            generate_bill();
-        }
 
-    }
-}
-
-void display_options(){
-
-    System.out.println("""
-            1. Add Customer
-            2. Add products
-            3. Display products
-            4. Display Customer
-            5. Generate Bill 
-            """);
-
-}
-
-}
 public class Main {
+    public static void display_options(){
+
+        System.out.println("""
+                1. Add Customer
+                2. Add products
+                3. Display products
+                4. Display Customer
+                5. Generate Bill 
+                """);
+    
+    }
+
     public static void main(String[] args) {
         System.out.println("SRI'S MART");
-        Shop shop = new Shop();
+        
+        while(true){
+            display_options();
+            Scanner sc = new Scanner(System.in);
+            System.out.print("Enter your choice: ");
+    
+            int choice = sc.nextInt();
+            if(choice==1){
+                Customer.add_customer();
+            }
+            else if(choice==2){
+                Product.add_product();
+            }
+            else if(choice==3){
+                Product.display_product();
+            }
+            else if(choice==4){
+                Customer.display_customer();
+            }
+            
+    
+        }
         
     }
 
