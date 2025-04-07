@@ -22,18 +22,37 @@ class Customer{
         String mobile = sc.next();
         
         Customer customer = new Customer(name, mobile);
-        custMap.put(customer.customer_id, customer);
+        custMap.put(customer.getCustomerId(), customer);
     }
     static void display_customer(){
         System.out.println("Customer Details");
         for(Map.Entry<Integer, Customer> entry: custMap.entrySet()){
-            int custID = entry.getKey();
+            
             Customer cust = entry.getValue();
-            System.out.println("Customer ID:" + custID);
-            System.out.println("Customer Name:" + cust.name);
-            System.out.println("Mobile.NO:" + cust.mobile);
+            System.out.println("Customer ID:" + cust.getCustomerId());
+            System.out.println("Customer Name:" + cust.getName());
+            System.out.println("Mobile.NO:" + cust.getMobile());
             System.out.println("------------------------------------");
         }
+    }
+
+    public static Customer getCustomerById(int id){
+        return custMap.get(id);
+    }
+    public int getCustomerId(){
+        return customer_id;
+    }
+    public String getName(){
+        return name;
+    }
+    public String getMobile(){
+        return mobile;
+    }
+    public void setName(String name){
+        this.name = name;
+    }
+    public void setMobile(String name){
+        this.mobile = mobile;
     }
 
 }
@@ -80,7 +99,35 @@ class Product{
             System.out.println("Quantity:" + prod.quantity);
             System.out.println("------------------------------------");
         }
-    }  
+    } 
+    
+    public int getProductId() {
+        return productid;
+    }
+
+    public String getProductName() {
+        return productname;
+    }
+
+    public double getRate() {
+        return rate;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setProductName(String productname) {
+        this.productname = productname;
+    }
+
+    public void setRate(double rate) {
+        this.rate = rate;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
 }
 class Sales{
     static int salescounter = 0;
@@ -105,7 +152,7 @@ class Sales{
         System.out.println("Enter customer id");
         int customer_id = sc.nextInt();
 
-        Customer customer = Customer.custMap.get(customer_id);
+        Customer customer = Customer.getCustomerById(customer_id);
         if(customer==null){
             System.out.println("Invalid Customer ID! Add customer to make sale");
         }
@@ -117,12 +164,12 @@ class Sales{
             int quantity = sc.nextInt();
             
             Product selectedProduct = Product.prodMap.get(productid);
-            if(quantity==0 ||selectedProduct==null || selectedProduct.quantity< quantity){
+            if(quantity==0 ||selectedProduct==null || selectedProduct.getQuantity() < quantity){
                 System.out.println("Invalid quantity");
             }
             else{
                 cartMap.put(selectedProduct, quantity);
-                selectedProduct.quantity-=quantity;
+                selectedProduct.quantity -= quantity;
             }
 
             System.out.print("Wish to buy more products(yes/no)?");
@@ -138,8 +185,7 @@ class Sales{
     void Amount_calculation(){
         for(Map.Entry<Product, Integer> entry: cartMap.entrySet()){
             Product prod = entry.getKey();
-            int quantity = entry.getValue();
-            total_amount += quantity * prod.rate;
+            total_amount += prod.getQuantity() * prod.getRate();
              
         }
 
