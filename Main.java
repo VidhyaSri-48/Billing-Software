@@ -1,13 +1,14 @@
 import java.util.*;
 
 class Customer{
-    static int customer_id=0;
+    static int customer_id_counter = 0;
+    int customer_id;
     String name;
     String mobile;
     
 
     Customer(String name, String mobile){
-        customer_id+=1;
+        this.customer_id = ++customer_id_counter;
         this. name = name;
         this.mobile = mobile;
     }
@@ -21,7 +22,7 @@ class Customer{
         String mobile = sc.next();
         
         Customer customer = new Customer(name, mobile);
-        custMap.put(customer_id, customer);
+        custMap.put(customer.customer_id, customer);
     }
     static void display_customer(){
         System.out.println("Customer Details");
@@ -31,7 +32,7 @@ class Customer{
             System.out.println("Customer ID:" + custID);
             System.out.println("Customer Name:" + cust.name);
             System.out.println("Mobile.NO:" + cust.mobile);
-            System.out.println("-------------------------------");
+            System.out.println("------------------------------------");
         }
     }
 
@@ -77,7 +78,7 @@ class Product{
             System.out.println("Product Name:" + prod.productname);
             System.out.println("Rate:" + prod.rate);
             System.out.println("Quantity:" + prod.quantity);
-            System.out.println("-------------------------------");
+            System.out.println("------------------------------------");
         }
     }  
 }
@@ -86,23 +87,28 @@ class Sales{
     int sales_id;
     Customer customer;
     Product product;
-    double total_amt;
+    double total_amount;
     double discount_amount;
 
-    Sales(Customer customer, Product product, double total_amt, double discount_amount){
+    Sales(Customer customer, Product product, double total_amount, double discount_amount){
         salescounter +=1;
         this.sales_id = salescounter;
         this.customer = customer;
         this.product = product;
-        this.total_amt = total_amt;
+        this.total_amount = total_amount;
         this.discount_amount  = discount_amount; 
     }
-    static HashMap<Integer, Integer>cartMap = new HashMap<>();
+    static HashMap<Product, Integer>cartMap = new HashMap<>();
 
     static void make_sale(){
         Scanner sc = new Scanner(System.in);
         System.out.println("Enter customer id");
         int customer_id = sc.nextInt();
+
+        Customer customer = Customer.custMap.get(customer_id);
+        if(customer==null){
+            System.out.println("Invalid Customer ID! Add customer to make sale");
+        }
 
         while(true){
             System.out.println("Enter product id");
@@ -115,54 +121,41 @@ class Sales{
                 System.out.println("Invalid quantity");
             }
             else{
-                cartMap.put(productid, quantity);
+                cartMap.put(selectedProduct, quantity);
+                selectedProduct.quantity-=quantity;
             }
 
-            System.out.println("Wish to buy more products(yes/no)?");
+            System.out.print("Wish to buy more products(yes/no)?");
             String ans = sc.next();
             if(ans.equalsIgnoreCase("no")) break;
             
         }
 
-        for(Map.Entry<Integer, Integer> entry: cartMap.entrySet()){
-
-            int pid = entry.getKey();
-            int qty = entry.getValue();
-            Product p = Product.prodMap.get(pid);
-            if (p != null) {
-                p.quantity -= qty;
-            }
-                    
-            }
-        Sales sale = new Sales(Customer.custMap.get(customer_id),null, 0, 0 );
+        Sales sale = new Sales(customer,null, 0, 0 );
         sale.Amount_calculation();
         sale.generate_Bill();
     }
     void Amount_calculation(){
-        double total_amt = 0;
-        for(Map.Entry<Integer, Product> entry: Product.prodMap.entrySet()){
-            Product prod = entry.getValue();
-            if(prod.quantity==0){
-                System.out.println("Stock unavailable");
-            }
-            else{
-                double amt = prod.quantity * prod.rate;    
-                total_amt += amt;
-            }
-            
+        for(Map.Entry<Product, Integer> entry: cartMap.entrySet()){
+            Product prod = entry.getKey();
+            int quantity = entry.getValue();
+            total_amount += quantity * prod.rate;
+             
         }
-        double discount_amount = discount_calculation(total_amt);
-        if(discount_amount == 0.0){
+
+        discount_amount = discount_calculation(total_amount);
+        
+        if(discount_amount>0){
+            total_amount -= discount_amount;
+        }
+        else if(discount_amount == 0.0){
             System.out.println("No discount, Buy more to avail discount");
-        }
-        else{
-            total_amt = total_amt - discount_amount;
         }
     }
 
     double discount_calculation(double amount){
-        if(amount>=1500){
-            return (15.0/100.0)*amount;
+        if(amount >= 1500){
+            return (15.0/100.0) * amount;
         }
         else{
             return 0.0;
@@ -171,8 +164,17 @@ class Sales{
     void generate_Bill(){
 
         System.out.println("Invoice Generation");
-        Product.display_product();
-        System.out.println("Total Amount: "+ total_amt);   
+        System.out.println("Customer Name: " + customer.name);
+        System.out.println("Customer Mobile: " + customer.mobile);
+        System.out.println("------------------------------------");
+        for (Map.Entry<Product, Integer> entry : cartMap.entrySet()) {
+            Product p = entry.getKey();
+            int quantity = entry.getValue();
+            System.out.println("Product: " + p.productname + ", Qty: " + quantity + ", Price: " + p.rate);
+        }
+        System.out.println("------------------------------------");
+
+        System.out.println("Total Amount: "+ total_amount);   
         System.out.println("Discount Amount: "+ discount_amount);   
         System.out.println("You have saved Rs. "+ discount_amount);   
         
@@ -188,7 +190,7 @@ public class Main {
                 3. Display products
                 4. Display Customer
                 5. Make sale
-                6. Generate Bill 
+                6. Exit
                 """);
     }
     public static void main(String[] args) {
@@ -215,6 +217,13 @@ public class Main {
             else if(choice==5){
                 Sales.make_sale();
             } 
+            else if(choice==6){
+                System.out.println("Thank you! Visit Again");
+                break;
+            } 
+            else{
+                System.out.println("Invalid choice!");
+            }
         }        
     }
 }
